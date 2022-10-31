@@ -13,16 +13,18 @@ class RadarCNN(BaseFeaturesExtractor):
         This corresponds to the number of unit for the last layer.
     """
 
-    def __init__(self, observation_space: gym.spaces.Box, sensor_dim : int = 180, features_dim: int = 32, kernel_overlap : float = 0.05):
+    #def __init__(self, observation_space: gym.spaces.Box, sensor_dim: int = 180, features_dim: int = 32, kernel_overlap: float = 0.05):
+    def __init__(self, observation_space: gym.spaces.Box, sensor_dim : int = 180, features_dim: int = 12, kernel_overlap : float = 0.25):
         super(RadarCNN, self).__init__(observation_space, features_dim=features_dim)
         # We assume CxHxW images (channels first)
         # Re-ordering will be done by pre-preprocessing or wrapper
 
         # Adjust kernel size for sensor density. (Default 180 sensors with 0.05 overlap --> kernel covers 9 sensors.
-        self.in_channels = observation_space.shape[0]
-        self.kernel_size = round(sensor_dim * kernel_overlap)
+        self.in_channels = observation_space.shape[0]  # 180
+        self.kernel_size = round(sensor_dim * kernel_overlap)  # 45
         self.kernel_size = self.kernel_size + 1 if self.kernel_size % 2 == 0 else self.kernel_size  # Make it odd sized
-        self.padding = (self.kernel_size - 1) // 2
+        #self.padding = (self.kernel_size - 1) // 2  # 22
+        self.padding = self.kernel_size // 3  # 15
         self.stride = self.padding
         #print("RADAR_CNN CONFIG")
         #print("\tIN_CHANNELS =", self.in_channels)
@@ -31,24 +33,15 @@ class RadarCNN(BaseFeaturesExtractor):
         #print("\tSTRIDE      =", self.stride)
         self.cnn = nn.Sequential(
             # in_channels: sensor distance, obst_velocity_x, obst_velocity_y
-            nn.Conv1d(in_channels=self.in_channels, out_channels=3, kernel_size=self.kernel_size, padding=self.padding,
-                      padding_mode='circular'),
-            nn.ReLU(),
-            nn.Conv1d(in_channels=3, out_channels=3, kernel_size=self.kernel_size, padding=self.padding,
-                      padding_mode='circular'),
-            nn.ReLU(),
-            nn.Conv1d(in_channels=3, out_channels=3, kernel_size=self.kernel_size, padding=self.padding,
-                      padding_mode='circular', stride=2),
-            nn.ReLU(),
-            nn.Conv1d(in_channels=3, out_channels=1, kernel_size=self.kernel_size, padding=self.padding,
-                      padding_mode='circular', stride=2),
-            nn.ReLU(),
+            nn.Conv1d(in_channels=self.in_channels, out_channels=1, kernel_size=self.kernel_size, padding=self.padding,
+                      padding_mode='circular', stride=self.stride),
             nn.Flatten(),
         )
 
         # Compute shape by doing one forward pass
         self.n_flatten = 0
         sample = th.as_tensor(observation_space.sample()).float()
+        print("Observation space - sample shape:", sample.shape)
         sample = sample.reshape(1, sample.shape[0], sample.shape[1])
         with th.no_grad():
             print("RadarCNN initializing, CNN input is", sample.shape, "and", end=" ")
@@ -59,7 +52,9 @@ class RadarCNN(BaseFeaturesExtractor):
         self.linear = nn.Sequential(nn.Linear(self.n_flatten, features_dim), nn.ReLU())
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
-        return self.linear(self.cnn(observations))
+        return self.cnn(observations)
+        #return self.linear(self.cnn(observations))
+        #return self.cnn(observations)
 
     def get_features(self, observations: th.Tensor) -> list:
         feat = []
@@ -109,7 +104,8 @@ class PerceptionNavigationExtractor(BaseFeaturesExtractor):
         This corresponds to the number of unit for the last layer.
     """
 
-    def __init__(self, observation_space: gym.spaces.Dict, sensor_dim : int = 180, features_dim: int = 32, kernel_overlap : float = 0.05):
+    #def __init__(self, observation_space: gym.spaces.Dict, sensor_dim : int = 180, features_dim: int = 32, kernel_overlap : float = 0.05):
+    def __init__(self, observation_space: gym.spaces.Dict, sensor_dim: int = 180, features_dim: int = 11, kernel_overlap: float = 0.25):
         # We do not know features-dim here before going over all the items,
         # so put something dummy for now. PyTorch requires calling
         # nn.Module.__init__ before adding modules

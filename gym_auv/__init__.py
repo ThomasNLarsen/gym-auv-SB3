@@ -30,7 +30,7 @@ DEFAULT_CONFIG = {
     'moment_max_auv': 0.15,                         # maximum moment applied to the AUV [Nm]
     "vessel_width": 1.255,                          # Width of vessel [m]
     "feasibility_width_multiplier": 5.0,            # Multiplier for vessel width in feasibility pooling algorithm 
-    "look_ahead_distance": 300,                     # Path look-ahead distance for vessel [m]
+    "look_ahead_distance": 150,                     # Path look-ahead distance for vessel [m]
     'render_distance': 300,                         # 3D rendering render distance [m]
     "sensing": True,                                # Whether rangerfinder sensors for perception should be activated
     "sensor_interval_load_obstacles": 25,           # Interval for loading nearby obstacles

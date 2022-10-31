@@ -50,8 +50,8 @@ class BaseEnvironment(gym.Env, ABC):
         # Setting dimension of observation vector
         self._n_sensors = self.config["n_sensors_per_sector"] * self.config["n_sectors"]
         self.n_navigation_obs = len(Vessel.NAVIGATION_FEATURES)
-        self.n_perception_obs = 3*self._n_sensors  # *self.config["n_sectors"]
-        self.n_observations = len(Vessel.NAVIGATION_FEATURES) + 3*self.config["n_sectors"]
+        self.n_perception_obs = self._n_sensors  # *self.config["n_sectors"]
+        self.n_observations = len(Vessel.NAVIGATION_FEATURES) + self.config["n_sectors"]
 
         self.episode = 0
         self.total_t_steps = 0
@@ -67,7 +67,8 @@ class BaseEnvironment(gym.Env, ABC):
                                       'duration',
                                       'progress',
                                       'pathlength'
-                                      ])
+                                      ], np.array([]))
+        #self.history = []
 
         # Declaring attributes
         self.obstacles = []
@@ -325,7 +326,7 @@ class BaseEnvironment(gym.Env, ABC):
             'obstacles': np.array(self.obstacles)
         }
         if save_history:
-            self.history = {
+            stats = {
                 'cross_track_error': np.array(self._tmp_storage['cross_track_error']).mean(),
                 'reached_goal': int(self.reached_goal),
                 'collision': int(self.collision),
@@ -335,6 +336,9 @@ class BaseEnvironment(gym.Env, ABC):
                 'progress': self.progress,
                 'pathlength': self.path.length
             }
+            for key in self.history.keys():
+                self.history[key] = np.append(self.history[key], stats[key])
+
 
     def store_statistics_to_file(self, path):
         path_history = os.path.join(path, 'history.h5')

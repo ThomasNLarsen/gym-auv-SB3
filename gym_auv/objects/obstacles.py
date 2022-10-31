@@ -81,6 +81,10 @@ class CircularObstacle(BaseObstacle):
         self.radius = radius
         self.position = position.flatten()
 
+        ## Thomas
+        self.dx = 0
+        self.dy = 0
+
     def _calculate_boundary(self):
         return shapely.geometry.Point(*self.position).buffer(self.radius).boundary.simplify(0.3, preserve_topology=False)
 

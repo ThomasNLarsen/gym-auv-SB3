@@ -6,7 +6,7 @@ from gym_auv.objects.vessel import Vessel
 from gym_auv.objects.path import RandomCurveThroughOrigin, Path
 from gym_auv.objects.obstacles import PolygonObstacle, VesselObstacle, CircularObstacle
 from gym_auv.environment import BaseEnvironment
-from gym_auv.objects.rewarder import ColregRewarder, ColavRewarder2, PathRewarder
+from gym_auv.objects.rewarder import ColregRewarder, ColavRewarder, ColavRewarder2, PathRewarder
 import shapely.geometry, shapely.errors
 
 import os 
@@ -78,7 +78,7 @@ class MovingObstaclesNoRules(MovingObstacles):
     def __init__(self, *args, **kwargs):
         self._n_moving_obst = 17
         self._n_static_obst = 11
-        self._rewarder_class = ColavRewarder2  # PathRewarder
+        self._rewarder_class = PathRewarder  # ColavRewarder2
         super().__init__(*args, **kwargs)
 
 class MovingObstaclesColreg(MovingObstacles):

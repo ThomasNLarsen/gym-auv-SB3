@@ -424,6 +424,7 @@ def _render_interceptions(env):
 def _render_sensors(env):
     for isensor, sensor_angle in enumerate(env.vessel._sensor_angles):
         isector = env.config["sector_partition_fun"](env, isensor) # isensor // env.config["n_sensors_per_sector"]
+        #distance = env.vessel._last_sensor_dist_measurements[isensor]
         distance = env.vessel._last_sensor_dist_measurements[isensor]
         p0 = env.vessel.position
         p1 = (

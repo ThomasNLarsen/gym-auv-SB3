@@ -91,24 +91,24 @@ def read_hdf5_report(report_dir):
 
     return history, trajectories
 
-def report(report_dir, lastn=None):
+def report(env, report_dir, lastn=100):
     try:
         os.makedirs(report_dir, exist_ok=True)
 
-        history, _ = read_hdf5_report(report_dir)
+        #history, _ = read_hdf5_report(report_dir)
+        history = env.history
 
-        if lastn >= len(history["episodes"]):
-            lastn = len(history["episodes"])
-
-        collisions          = history["collisions"][:lastn]
+        #if lastn >= len(history["episodes"]):
+        #    lastn = len(history["episodes"])
+        collisions          = history["collision"][:lastn]
         no_collisions       = collisions == 0
-        cross_track_errors  = history["cross_track_errors"][:lastn]
+        cross_track_errors  = history["cross_track_error"][:lastn]
         progresses          = history["progress"][:lastn]
         rewards             = history["reward"][:lastn]
         timesteps           = history["timesteps"][:lastn]
         durations           = history["duration"][:lastn]
         pathlengths         = history["pathlength"][:lastn]
-        speeds              = [_path_len / _duration if _duration > 0 else np.nan for (_path_len, _duration) in zip(pathlengths, durations)][:lastn]
+        speeds              = np.array([_path_len / _duration if _duration > 0 else np.nan for (_path_len, _duration) in zip(pathlengths, durations)][:lastn])
 
         with open(os.path.join(report_dir, 'report.txt'), 'w') as f:
             f.write('# PERFORMANCE METRICS (LAST {} EPISODES AVG.)\n'.format(lastn))
@@ -223,7 +223,8 @@ def plot_trajectory(report_dir, env, fig_dir, local=False, size=100, fig_prefix=
     """
 
     #print('Plotting with local = ' + str(local))
-    _, trajectories = read_hdf5_report(report_dir)
+    #_, trajectories = read_hdf5_report(report_dir)
+    trajectories = env.last_episode
 
     path =  trajectories['path']
     path_taken = trajectories['path_taken']

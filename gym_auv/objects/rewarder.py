@@ -173,13 +173,12 @@ class ColavRewarder2(BaseRewarder):
             closeness_reward = 0
 
         # Calculating living penalty
-        living_penalty = self.params['lambda'] * (2 * self.params["neutral_speed"] + 1) + self.params["eta"] * \
-                         self.params["neutral_speed"]
+        living_penalty = 2.0 #self.params['lambda'] * (2 * self.params["neutral_speed"] + 1) + self.params["eta"] * self.params["neutral_speed"]
 
 
         # Calculating total reward
         reward = path_reward + \
-                 0.001 * closeness_reward - \
+                 0.05 * closeness_reward - \
                  living_penalty
 
         return reward
@@ -197,7 +196,7 @@ class ColavRewarder(BaseRewarder):
         self.params['cruise_speed'] = 0.1
         self.params['neutral_speed'] = 0.05
         self.params['negative_multiplier'] = 2.0
-        self.params['collision'] = -10000.0
+        self.params['collision'] = -1000.0
         self.params['lambda'] = 0.5 #_sample_lambda(scale=0.2)
         self.params['eta'] = 0#_sample_eta()
 
@@ -255,8 +254,8 @@ class ColavRewarder(BaseRewarder):
             self.params["eta"]*self._vessel.speed/self._vessel.max_speed - \
             self.params["penalty_yawrate"]*abs(self._vessel.yaw_rate)
 
-        if reward < 0:
-            reward *= self.params['negative_multiplier']
+        #if reward < 0:
+        #    reward *= self.params['negative_multiplier']
 
         return reward
 

@@ -97,6 +97,10 @@ def _simulate_sensor(sensor_angle, p0_point, sensor_range, obstacles):
             obst_speed_vec_rel = geom.to_cartesian(obst_speed_rel_homogenous)
         else:
             obst_speed_vec_rel = (0, 0)
+            ### Thomas
+            #obst_speed_homogenous = geom.to_homogeneous([0.0, 0.0])
+            #obst_speed_rel_homogenous = geom.Rz(-sensor_angle - np.pi / 2).dot(obst_speed_homogenous)
+            #obst_speed_vec_rel = geom.to_cartesian(obst_speed_rel_homogenous)
         ray_blocked = True
     else:
         measured_distance = sensor_range
@@ -402,7 +406,7 @@ class Vessel():
         self._collision = collision
         self._perceive_counter += 1
 
-        return self._last_sensor_dist_measurements.reshape(1,self.n_sensors)
+        return self._get_closeness(self._last_sensor_dist_measurements.reshape(1,self.n_sensors))
         #sensor_speed_x = self._last_sensor_speed_measurements[:, 0]
         #sensor_speed_y = self._last_sensor_speed_measurements[:, 1]
         #return np.vstack((self._last_sensor_dist_measurements,
